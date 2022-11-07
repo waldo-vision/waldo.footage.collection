@@ -2,7 +2,10 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Clip, ClipInput } from '../models/clip.interface';
 
-const createClip = async (req: Request, res: Response) => {
+const createClip = async (
+  req: Request,
+  res: Response,
+): Promise<Response<any, Record<string, any>>> => {
   const { footage } = req.body;
   const uniqueId = uuidv4();
 
@@ -20,13 +23,19 @@ const createClip = async (req: Request, res: Response) => {
   return res.status(201).json({ data: clipCreated });
 };
 
-const getAllClips = async (req: Request, res: Response) => {
+const getAllClips = async (
+  req: Request,
+  res: Response,
+): Promise<Response<any, Record<string, any>>> => {
   const clips = await Clip.find().sort('-createdAt').exec();
 
   return res.status(200).json({ data: clips });
 };
 
-const getClip = async (req: Request, res: Response) => {
+const getClip = async (
+  req: Request,
+  res: Response,
+): Promise<Response<any, Record<string, any>>> => {
   const { id } = req.params;
 
   const clip = await Clip.findOne({ _id: id });
@@ -38,7 +47,10 @@ const getClip = async (req: Request, res: Response) => {
   return res.status(200).json({ data: clip });
 };
 
-const deleteClip = async (req: Request, res: Response) => {
+const deleteClip = async (
+  req: Request,
+  res: Response,
+): Promise<Response<any, Record<string, any>>> => {
   const { id } = req.params;
 
   await Clip.findByIdAndDelete(id);

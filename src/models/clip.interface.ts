@@ -31,6 +31,9 @@ if (mongoose.models.Clip) {
   delete mongoose.models.Clip;
 }
 
-const Clip: Model<ClipDocument> = mongoose.model<ClipDocument>('Clip', clipSchema);
+const Clip: Model<ClipDocument> = mongoose.model<ClipDocument>(
+  'Clip',
+  clipSchema,
+);
 
 export { Clip, ClipInput, ClipDocument };
