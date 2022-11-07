@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ytdl from 'ytdl-core';
 import * as fs from 'fs';
 import { Footage, FootageInput } from '../models/footage.interface';
-
+import { Types } from 'mongoose';
 const createFootage = async (
   req: Request,
   res: Response,
@@ -14,6 +14,17 @@ const createFootage = async (
     return res
       .status(422)
       .json({ message: 'The fields id, username, and URL are required' });
+  }
+
+  // checks if the id is a mongodb ObjectID type, otherwise the console spits out an error and won't let you send anymore requests.
+
+  if (typeof username !== 'string') {
+    return res
+      .status(404)
+      .json({ message: 'The username field must be a string.' });
+  }
+  if (typeof url !== 'string') {
+    return res.status(404).json({ message: 'The url field must be a string.' });
   }
 
   const footageId = uuidv4();
@@ -74,6 +85,15 @@ const getFootage = async (
 ): Promise<Response<any, Record<string, any>>> => {
   const { id } = req.params;
 
+  // checks if the id is a mongodb ObjectID type, otherwise the console spits out an error and won't let you send anymore requests.
+  const ObjectID = Types.ObjectId;
+  const isValidId: boolean = ObjectID.isValid(id);
+  if (isValidId === false) {
+    return res
+      .status(404)
+      .json({ message: `Id: ${id} is not a valid ObjectId Type.` });
+  }
+
   const footage = await Footage.findOne({ _id: id });
 
   if (!footage) {
@@ -86,9 +106,20 @@ const getFootage = async (
 };
 
 // TODO: Implement getUserFootage endpoint to get all footage based on user ID.
-// const getUserFootage = async (req: Request, res: Response) => {
-//
-// };
+const getUserFootage = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const filter = { discordId: id };
+  const userFootage = await Footage.find(filter);
+
+  if (userFootage.length === 0) {
+    return res
+      .status(200)
+      .json({ message: 'User has no footage.', data: userFootage });
+  }
+
+  return res.status(200).json({ data: userFootage });
+};
 
 // TODO: Implement getFootageClips endpoint to get all associated clips based on footage ID.
 // const getFootageClips = async (req: Request, res: Response) => {
@@ -106,9 +137,23 @@ const deleteFootage = async (
 ): Promise<Response<any, Record<string, any>>> => {
   const { id } = req.params;
 
+  const ObjectID = Types.ObjectId;
+  const isValidId: boolean = ObjectID.isValid(id);
+  if (isValidId === false) {
+    return res
+      .status(404)
+      .json({ message: `Id: ${id} is not a valid ObjectId Type.` });
+  }
+
   await Footage.findByIdAndDelete(id);
 
   return res.status(200).json({ message: 'Footage deleted successfully.' });
 };
 
-export { createFootage, deleteFootage, getAllFootage, getFootage };
+export {
+  createFootage,
+  deleteFootage,
+  getAllFootage,
+  getFootage,
+  getUserFootage,
+};

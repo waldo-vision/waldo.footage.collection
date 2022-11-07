@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Clip, ClipInput } from '../models/clip.interface';
+import { Types } from 'mongoose';
 
 const createClip = async (
   req: Request,
@@ -38,6 +39,15 @@ const getClip = async (
 ): Promise<Response<any, Record<string, any>>> => {
   const { id } = req.params;
 
+  // checks if the id is a mongodb ObjectID type, otherwise the console spits out an error and won't let you send anymore requests.
+  const ObjectID = Types.ObjectId;
+  const isValidId: boolean = ObjectID.isValid(id);
+  if (isValidId === false) {
+    return res
+      .status(404)
+      .json({ message: `Id: ${id} is not a valid ObjectId Type.` });
+  }
+
   const clip = await Clip.findOne({ _id: id });
 
   if (!clip) {
@@ -52,6 +62,14 @@ const deleteClip = async (
   res: Response,
 ): Promise<Response<any, Record<string, any>>> => {
   const { id } = req.params;
+
+  const ObjectID = Types.ObjectId;
+  const isValidId: boolean = ObjectID.isValid(id);
+  if (isValidId === false) {
+    return res
+      .status(404)
+      .json({ message: `Id: ${id} is not a valid ObjectId Type.` });
+  }
 
   await Clip.findByIdAndDelete(id);
 

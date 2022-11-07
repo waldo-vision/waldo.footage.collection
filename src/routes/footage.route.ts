@@ -4,6 +4,7 @@ import {
   deleteFootage,
   getAllFootage,
   getFootage,
+  getUserFootage,
 } from '../controllers/footage.controller';
 
 const footageRoute = (): Router => {
@@ -14,6 +15,8 @@ const footageRoute = (): Router => {
   router.get('/', getAllFootage);
 
   router.get('/:id', getFootage);
+
+  router.get('/user/:id', getUserFootage);
 
   // router.get('/user/:id', getUserFootage);
 
