@@ -1,7 +1,12 @@
 import { Router } from 'express';
-import { createClip, deleteClip, getAllClips, getClip } from '../controllers/clip.controller';
+import {
+  createClip,
+  deleteClip,
+  getAllClips,
+  getClip,
+} from '../controllers/clip.controller';
 
-const clipRoute = () => {
+const clipRoute = (): Router => {
   const router = Router();
 
   router.post('/', createClip);

@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 import { clipRoute } from './routes/clip.route';
 import { footageRoute } from './routes/footage.route';
-import { connect } from "./services/database";
+import { connect } from './services/database';
 
 dotenv.config();
 
@@ -19,11 +19,11 @@ app.use('/footage', footageRoute());
 app.use('/clip', clipRoute());
 
 app.get('/', (req, res) => {
-    return res.json({ message: 'Hello World!' });
+  return res.json({ message: 'Hello World!' });
 });
 
 app.listen(PORT, async () => {
-    await connect();
+  await connect();
 
-    console.log(`Application started on URL ${HOST}:${PORT} 🎉`);
+  console.log(`Application started on URL ${HOST}:${PORT} 🎉`);
 });

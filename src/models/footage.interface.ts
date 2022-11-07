@@ -58,6 +58,9 @@ if (mongoose.models.Footage) {
   delete mongoose.models.Footage;
 }
 
-const Footage: Model<FootageDocument> = mongoose.model<FootageDocument>('Footage', footageSchema);
+const Footage: Model<FootageDocument> = mongoose.model<FootageDocument>(
+  'Footage',
+  footageSchema,
+);
 
 export { Footage, FootageInput, FootageDocument };

@@ -1,7 +1,12 @@
 import { Router } from 'express';
-import { createFootage, deleteFootage, getAllFootage, getFootage } from '../controllers/footage.controller';
+import {
+  createFootage,
+  deleteFootage,
+  getAllFootage,
+  getFootage,
+} from '../controllers/footage.controller';
 
-const footageRoute = () => {
+const footageRoute = (): Router => {
   const router = Router();
 
   router.post('/', createFootage);

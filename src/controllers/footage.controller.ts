@@ -4,11 +4,16 @@ import ytdl from 'ytdl-core';
 import * as fs from 'fs';
 import { Footage, FootageInput } from '../models/footage.interface';
 
-const createFootage = async (req: Request, res: Response) => {
+const createFootage = async (
+  req: Request,
+  res: Response,
+): Promise<Response<any, Record<string, any>>> => {
   const { id, username, url } = req.body;
 
   if (!id || !username || !url) {
-    return res.status(422).json({ message: 'The fields id, username, and URL are required' });
+    return res
+      .status(422)
+      .json({ message: 'The fields id, username, and URL are required' });
   }
 
   const footageId = uuidv4();
@@ -48,23 +53,33 @@ const createFootage = async (req: Request, res: Response) => {
       return res.status(404).json({ message: error.message });
     }
 
-    return res.status(404).json({ message: 'Something went wrong parsing video from URL' });
+    return res
+      .status(404)
+      .json({ message: 'Something went wrong parsing video from URL' });
   }
 };
 
-const getAllFootage = async (req: Request, res: Response) => {
+const getAllFootage = async (
+  req: Request,
+  res: Response,
+): Promise<Response<any, Record<string, any>>> => {
   const footage = await Footage.find().sort('-createdAt').exec();
 
   return res.status(200).json({ data: footage });
 };
 
-const getFootage = async (req: Request, res: Response) => {
+const getFootage = async (
+  req: Request,
+  res: Response,
+): Promise<Response<any, Record<string, any>>> => {
   const { id } = req.params;
 
   const footage = await Footage.findOne({ _id: id });
 
   if (!footage) {
-    return res.status(404).json({ message: `Footage with id "${id}" not found.` });
+    return res
+      .status(404)
+      .json({ message: `Footage with id "${id}" not found.` });
   }
 
   return res.status(200).json({ data: footage });
@@ -85,7 +100,10 @@ const getFootage = async (req: Request, res: Response) => {
 //
 // };
 
-const deleteFootage = async (req: Request, res: Response) => {
+const deleteFootage = async (
+  req: Request,
+  res: Response,
+): Promise<Response<any, Record<string, any>>> => {
   const { id } = req.params;
 
   await Footage.findByIdAndDelete(id);
