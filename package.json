@@ -6,11 +6,9 @@
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
     "start": "ts-node dist/index.js",
     "build": "tsc",
-    "prettier:check": "prettier --config .prettierrc.js --check src/**/*.ts",
-    "prettier:write": "prettier --config .prettierrc.js --write src/**/*.ts",
     "lint": "eslint src/**/*.{js,ts,tsx}",
-    "lint:fix": "eslint 'src/**/*.{js,ts,tsx}' --quiet --fix",
-    "precommit": "npm run lint:fix && npm run prettier:check",
+    "lint:fix": "eslint src/**/*.{js,ts,tsx} --quiet --fix",
+    "precommit": "npm run lint:fix",
     "prepare": "husky install",
     "scriptname": "cmd"
   },
