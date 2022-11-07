@@ -106,7 +106,10 @@ const getFootage = async (
 };
 
 // TODO: Implement getUserFootage endpoint to get all footage based on user ID.
-const getUserFootage = async (req: Request, res: Response) => {
+const getUserFootage = async (
+  req: Request,
+  res: Response,
+): Promise<Response<any, Record<string, any>>> => {
   const { id } = req.params;
 
   const filter = { discordId: id };
