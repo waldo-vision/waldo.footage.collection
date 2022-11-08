@@ -13,11 +13,11 @@ const clipRoute = (): Router => {
 
   router.get('/', getAllClips);
 
-  router.get('/:id', getClip);
+  router.get('/:uuid', getClip);
 
   // router.patch('/clip/:id', updateClip);
 
-  router.delete('/:id', deleteClip);
+  router.delete('/:uuid', deleteClip);
 
   return router;
 };

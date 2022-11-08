@@ -1,7 +1,7 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
 
 type FootageDocument = Document & {
-  id: string;
+  uuid: string;
   discordId: number;
   username: string;
   youtubeUrl: string;
@@ -10,7 +10,7 @@ type FootageDocument = Document & {
 };
 
 type FootageInput = {
-  id: FootageDocument['id'];
+  uuid: FootageDocument['uuid'];
   username: FootageDocument['username'];
   discordId: FootageDocument['discordId'];
   youtubeUrl: FootageDocument['youtubeUrl'];
@@ -20,7 +20,7 @@ type FootageInput = {
 
 const footageSchema = new Schema(
   {
-    id: {
+    uuid: {
       type: Schema.Types.String,
       required: true,
       unique: true,

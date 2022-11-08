@@ -3,8 +3,20 @@ import { v4 as uuidv4 } from 'uuid';
 import ytdl from 'ytdl-core';
 import * as fs from 'fs';
 import { Footage, FootageInput } from '../models/footage.interface';
-import { Types } from 'mongoose';
+import { Clip } from '../models/clip.interface';
+
 const createFootage = async (
+  /**
+   * POST /footage
+   * @summary Endpoint to create new Footage document based on submission from web form.
+   * @param {string} id.form.required - The User's Discord ID - application/x-www-form-urlencoded
+   * @param {string} username.form.required - The User's Discord name - application/x-www-form-urlencoded
+   * @param {string} url.form.required - The YouTube URL with capture footage - application/x-www-form-urlencoded
+   * @return {FootageDocument} 200 - Success response returns created Footage document.
+   * @return 422 - A required form item is missing (i.e.: id, username, url).
+   * @return 406 - The YouTube URL is not to an acceptable.
+   * @return 400 - The YouTube URL has already been submitted.
+   */
   req: Request,
   res: Response,
 ): Promise<Response<any, Record<string, any>>> => {
@@ -16,28 +28,15 @@ const createFootage = async (
       .json({ message: 'The fields id, username, and URL are required' });
   }
 
-  // checks if the id is a mongodb ObjectID type, otherwise the console spits out an error and won't let you send anymore requests.
+  const existingFootage = await Footage.findOne({ youtubeUrl: url });
 
-  if (typeof username !== 'string') {
-    return res
-      .status(404)
-      .json({ message: 'The username field must be a string.' });
+  if (existingFootage) {
+    return res.status(400).send(`URL ${url} has already been submitted.`);
   }
-  if (typeof url !== 'string') {
-    return res.status(404).json({ message: 'The url field must be a string.' });
-  }
-
-  const footageId = uuidv4();
-  const footageInput: FootageInput = {
-    id: footageId,
-    discordId: id,
-    username,
-    youtubeUrl: url,
-    isCsgoFootage: false,
-    isAnalyzed: false,
-  };
 
   try {
+    const footageId = uuidv4();
+
     // Validate that the URL contains a video that can be downloaded.
     await ytdl.getInfo(url);
     // Download video and save as a local MP4 to be used for processing.
@@ -56,12 +55,21 @@ const createFootage = async (
     // Each clip should be submitted to the database as a ClipInput.
     // Each clip should be stored to a location on the local server where it can be obtained by the Analysis team.
 
-    const footageCreated = await Footage.create(footageInput);
+    const footageInput: FootageInput = {
+      uuid: footageId,
+      discordId: id,
+      username,
+      youtubeUrl: url,
+      isCsgoFootage: false,
+      isAnalyzed: false,
+    };
+
+    await Footage.create(footageInput);
 
     return res.status(201).json({ data: footageInput });
   } catch (error) {
     if (error instanceof Error) {
-      return res.status(404).json({ message: error.message });
+      return res.status(406).json({ message: error.message });
     }
 
     return res
@@ -70,6 +78,11 @@ const createFootage = async (
   }
 };
 
+/**
+ * GET /footage
+ * @summary Endpoint to get all available Footage documents.
+ * @return {array<FootageDocument>} 200 - Success response returns an array of Footage documents.
+ */
 const getAllFootage = async (
   req: Request,
   res: Response,
@@ -79,54 +92,71 @@ const getAllFootage = async (
   return res.status(200).json({ data: footage });
 };
 
+/**
+ * GET /footage/:uuid
+ * @summary Endpoint to get a specific Footage document.
+ * @return {FootageDocument} 200 - Success response returns the Footage document.
+ * @return 404 - Footage with UUID could not be found.
+ */
 const getFootage = async (
   req: Request,
   res: Response,
 ): Promise<Response<any, Record<string, any>>> => {
-  const { id } = req.params;
-
-  // checks if the id is a mongodb ObjectID type, otherwise the console spits out an error and won't let you send anymore requests.
-  const ObjectID = Types.ObjectId;
-  if (ObjectID.isValid(id) === false) {
-    return res
-      .status(404)
-      .json({ message: `Id: ${id} is not a valid ObjectId Type.` });
-  }
-
-  const footage = await Footage.findOne({ _id: id });
+  const { uuid } = req.params;
+  const footage = await Footage.findOne({ uuid: uuid });
 
   if (!footage) {
-    return res
-      .status(404)
-      .json({ message: `Footage with id "${id}" not found.` });
+    return res.status(404).send(`Footage with uuid "${uuid}" not found.`);
   }
 
   return res.status(200).json({ data: footage });
 };
 
-// TODO: Implement getUserFootage endpoint to get all footage based on user ID.
+/**
+ * GET /footage/user/:id
+ * @summary Endpoint to get all Footage documents associated to a user.
+ * @return {array<FootageDocument>} 200 - Success response returns the Footage document.
+ * @return 404 - No Footage found with the provided User ID.
+ */
 const getUserFootage = async (
   req: Request,
   res: Response,
 ): Promise<Response<any, Record<string, any>>> => {
   const { id } = req.params;
-
-  const filter = { discordId: id };
-  const userFootage = await Footage.find(filter);
+  const userFootage = await Footage.find({ discordId: id });
 
   if (userFootage.length === 0) {
-    return res
-      .status(200)
-      .json({ message: 'User has no footage.', data: userFootage });
+    return res.status(404).json({
+      message: 'No footage found with the provided User ID.',
+      data: userFootage,
+    });
   }
 
   return res.status(200).json({ data: userFootage });
 };
 
-// TODO: Implement getFootageClips endpoint to get all associated clips based on footage ID.
-// const getFootageClips = async (req: Request, res: Response) => {
-//
-// };
+/**
+ * GET /footage/clips/:uuid
+ * @summary Endpoint to get all Clip documents associated to a specific Footage UUID.
+ * @return {array<ClipDocument>} 200 - Success response returns the Footage document.
+ * @return 404 - No Clips found for the provided Footage UUID.
+ */
+const getFootageClips = async (
+  req: Request,
+  res: Response,
+): Promise<Response<any, Record<string, any>>> => {
+  const { uuid } = req.params;
+  const footageClips = await Clip.find({ footage: uuid });
+
+  if (footageClips.length === 0) {
+    return res.status(404).json({
+      message: `No clips found for footage with uuid "${uuid}"`,
+      data: footageClips,
+    });
+  }
+
+  return res.status(200).json({ data: footageClips });
+};
 
 // TODO: Implement updateFootage endpoint to update after parsing & analysis.
 const updateFootage = async (req: Request, res: Response): Promise<Response<any, Record<string, any>>> => {
@@ -198,20 +228,27 @@ const updateFootage = async (req: Request, res: Response): Promise<Response<any,
 
 };
 
+/**
+ * DELETE /footage/:uuid
+ * @summary Endpoint to delete a specific Footage document.
+ * @return 200 - Successfully deleted Footage document based on UUID.
+ * @return 404 - Footage UUID not found.
+ */
 const deleteFootage = async (
   req: Request,
   res: Response,
 ): Promise<Response<any, Record<string, any>>> => {
-  const { id } = req.params;
+  const { uuid } = req.params;
 
-  const ObjectID = Types.ObjectId;
-  if (ObjectID.isValid(id) === false) {
-    return res
-      .status(404)
-      .json({ message: `Id: ${id} is not a valid ObjectId Type.` });
+  if (!uuid) {
+    res.status(422).send('Parameter "uuid" is required.');
   }
 
-  await Footage.findByIdAndDelete(id);
+  const deleteResult = await Footage.deleteOne({ uuid: uuid });
+
+  if (deleteResult.deletedCount === 0) {
+    return res.status(404).send(`Footage with uuid "${uuid}" not found.`);
+  }
 
   return res.status(200).json({ message: 'Footage deleted successfully.' });
 };
@@ -220,6 +257,7 @@ export {
   createFootage,
   deleteFootage,
   getAllFootage,
-  getFootage,
   getUserFootage,
+  getFootage,
+  getFootageClips,
 };
