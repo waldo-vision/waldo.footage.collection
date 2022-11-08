@@ -193,7 +193,8 @@ const updateFootage = async (
     isAnalyzed === undefined
   ) {
     return res.status(400).json({
-      message: 'The fields uuid, isCsgoFootage, and isAnalyed must be supplied.',
+      message:
+        'The fields uuid, isCsgoFootage, and isAnalyed must be supplied.',
     });
   }
 
