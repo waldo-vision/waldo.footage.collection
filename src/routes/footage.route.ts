@@ -3,25 +3,27 @@ import {
   createFootage,
   deleteFootage,
   getAllFootage,
+  getUserFootage,
   getFootage,
+  getFootageClips,
 } from '../controllers/footage.controller';
 
 const footageRoute = (): Router => {
   const router = Router();
 
-  router.post('/', createFootage);
+  router.post('/:footage', createFootage);
 
   router.get('/', getAllFootage);
 
-  router.get('/:id', getFootage);
+  router.get('/:uuid', getFootage);
 
-  // router.get('/user/:id', getUserFootage);
+  router.get('/user/:id', getUserFootage);
 
-  // router.get('/clips/:id', getFootageClips);
+  router.get('/clips/:uuid', getFootageClips);
 
   // router.patch('/:id', updateFootage);
 
-  router.delete('/:id', deleteFootage);
+  router.delete('/:uuid', deleteFootage);
 
   return router;
 };

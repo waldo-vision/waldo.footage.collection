@@ -1,20 +1,27 @@
 import mongoose, { Schema, Model, Document } from 'mongoose';
 
+/**
+ * A Clip Document
+ * @typedef {object} ClipDocument
+ * @property {string} id.required - The new unique ID for clip creation
+ * @property {string} footage.required - The associated Footage ID
+ */
 type ClipDocument = Document & {
-  id: string;
+  uuid: string;
   footage: string;
 };
 
 type ClipInput = {
-  id: ClipDocument['id'];
+  uuid: ClipDocument['uuid'];
   footage: ClipDocument['footage'];
 };
 
 const clipSchema = new Schema(
   {
-    id: {
+    uuid: {
       type: Schema.Types.String,
       required: true,
+      unique: true,
     },
     footage: {
       type: Schema.Types.String,
