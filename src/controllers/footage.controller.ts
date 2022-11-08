@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate } from 'uuid';
 import ytdl from 'ytdl-core';
 import * as fs from 'fs';
 import { Footage, FootageInput } from '../models/footage.interface';
@@ -159,22 +159,33 @@ const getFootageClips = async (
 };
 
 // TODO: Implement updateFootage endpoint to update after parsing & analysis.
-const updateFootage = async (req: Request, res: Response): Promise<Response<any, Record<string, any>>> => {
+const updateFootage = async (
+  req: Request,
+  res: Response,
+): Promise<Response<any, Record<string, any>>> => {
   const { id } = req.params;
-  const { discordId, username, youtubeUrl, isCsgoFootage, isAnalyzed } = req.body;
-  const ObjectId = Types.ObjectId;
+  const { discordId, username, youtubeUrl, isCsgoFootage, isAnalyzed } =
+    req.body;
   // check if all fields were supplied
-  if (username === undefined || youtubeUrl === undefined || discordId === undefined || isCsgoFootage === undefined || isAnalyzed === undefined) {
-    return res
-    .status(404)
-    .json({message: "The fields id, username, youtubeUrl, isCsgoFootage, and isAnalyed all must be supplied."})
+  if (
+    id === undefined ||
+    username === undefined ||
+    youtubeUrl === undefined ||
+    discordId === undefined ||
+    isCsgoFootage === undefined ||
+    isAnalyzed === undefined
+  ) {
+    return res.status(404).json({
+      message:
+        'The fields id, username, youtubeUrl, isCsgoFootage, and isAnalyed all must be supplied.',
+    });
   }
-  
-  // check if id provided is a ObjectID type.
-  if (!ObjectId.isValid(id)) {
+
+  // check if id provided is a UUIDv4.
+  if (!validate(id)) {
     return res
-    .status(404)
-    .json({message: `Id: ${id} is not a valid ObjectId.`});
+      .status(404)
+      .json({ message: `Id: ${id} is not a valid UUIDv4.` });
   }
   // username is type of string?
   if (typeof username !== 'string') {
@@ -198,34 +209,35 @@ const updateFootage = async (req: Request, res: Response): Promise<Response<any,
   if (typeof isCsgoFootage !== 'boolean') {
     return res
       .status(404)
-      .json({message: "The isCsgoFootage field must be a boolean."})
+      .json({ message: 'The isCsgoFootage field must be a boolean.' });
   }
   // isAnalyzed is type of boolean?
   if (typeof isAnalyzed !== 'boolean') {
     return res
       .status(404)
-      .json({message: "The isAnalyzed field must be a boolean."})
+      .json({ message: 'The isAnalyzed field must be a boolean.' });
   }
 
   const updatedFootage: FootageInput = {
-    id: id,
+    uuid: id,
     discordId: discordId,
     username: username,
     isAnalyzed: isAnalyzed,
     isCsgoFootage: isCsgoFootage,
     youtubeUrl: youtubeUrl,
-  }
+  };
 
-  const filter = {_id: id}
+  const filter = { _id: id };
   try {
     const result = await Footage.findOneAndUpdate(filter, updatedFootage);
-
-  } catch(err) {
-    return res.status(404).json({ message: err })
+  } catch (err) {
+    return res.status(404).json({ message: err });
   }
 
-  return res.status(200).json({ message: "Updated the footage document successfully!", updatedFootage: updateFootage })
-
+  return res.status(200).json({
+    message: 'Updated the footage document successfully!',
+    updatedFootage: updateFootage,
+  });
 };
 
 /**
