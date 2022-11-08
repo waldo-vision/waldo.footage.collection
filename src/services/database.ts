@@ -1,10 +1,8 @@
-import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
 export async function connect(): Promise<void> {
-  dotenv.config();
-  const { DB_URL, DB_PORT, DB_NAME } = process.env;
+  const { DB_URL } = process.env;
 
-  await mongoose.connect(`mongodb://${DB_URL}:${DB_PORT}/${DB_NAME}`);
+  await mongoose.connect(DB_URL || '');
   console.log('Successfully connected to database');
 }
