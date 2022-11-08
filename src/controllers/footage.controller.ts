@@ -129,9 +129,74 @@ const getUserFootage = async (
 // };
 
 // TODO: Implement updateFootage endpoint to update after parsing & analysis.
-// const updateFootage = async (req: Request, res: Response) => {
-//
-// };
+const updateFootage = async (req: Request, res: Response): Promise<Response<any, Record<string, any>>> => {
+  const { id } = req.params;
+  const { discordId, username, youtubeUrl, isCsgoFootage, isAnalyzed } = req.body;
+  const ObjectId = Types.ObjectId;
+  // check if all fields were supplied
+  if (username === undefined || youtubeUrl === undefined || discordId === undefined || isCsgoFootage === undefined || isAnalyzed === undefined) {
+    return res
+    .status(404)
+    .json({message: "The fields id, username, youtubeUrl, isCsgoFootage, and isAnalyed all must be supplied."})
+  }
+  
+  // check if id provided is a ObjectID type.
+  if (!ObjectId.isValid(id)) {
+    return res
+    .status(404)
+    .json({message: `Id: ${id} is not a valid ObjectId.`});
+  }
+  // username is type of string?
+  if (typeof username !== 'string') {
+    return res
+      .status(404)
+      .json({ message: 'The username field must be a string.' });
+  }
+  // discordId is type of number?
+  if (typeof discordId !== 'number') {
+    return res
+      .status(404)
+      .json({ message: 'The discordId field must be a number.' });
+  }
+  // youtube Url is type of string?
+  if (typeof youtubeUrl !== 'string') {
+    return res
+      .status(404)
+      .json({ message: 'The youtubeUrl field must be a string.' });
+  }
+  // isCsgoFootage is type of boolean?
+  if (typeof isCsgoFootage !== 'boolean') {
+    return res
+      .status(404)
+      .json({message: "The isCsgoFootage field must be a boolean."})
+  }
+  // isAnalyzed is type of boolean?
+  if (typeof isAnalyzed !== 'boolean') {
+    return res
+      .status(404)
+      .json({message: "The isAnalyzed field must be a boolean."})
+  }
+
+  const updatedFootage: FootageInput = {
+    id: id,
+    discordId: discordId,
+    username: username,
+    isAnalyzed: isAnalyzed,
+    isCsgoFootage: isCsgoFootage,
+    youtubeUrl: youtubeUrl,
+  }
+
+  const filter = {_id: id}
+  try {
+    const result = await Footage.findOneAndUpdate(filter, updatedFootage);
+
+  } catch(err) {
+    return res.status(404).json({ message: err })
+  }
+
+  return res.status(200).json({ message: "Updated the footage document successfully!", updatedFootage: updateFootage })
+
+};
 
 const deleteFootage = async (
   req: Request,
