@@ -18,8 +18,6 @@ const footageRoute = (): Router => {
 
   router.get('/user/:id', getUserFootage);
 
-  // router.get('/user/:id', getUserFootage);
-
   // router.get('/clips/:id', getFootageClips);
 
   // router.patch('/:id', updateFootage);
