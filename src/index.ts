@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import expressJSDocSwagger from "express-jsdoc-swagger";
+import expressJSDocSwagger from 'express-jsdoc-swagger';
 
 import { clipRoute } from './routes/clip.route';
 import { footageRoute } from './routes/footage.route';
