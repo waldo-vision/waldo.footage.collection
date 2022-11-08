@@ -18,6 +18,11 @@ type FootageInput = {
   isAnalyzed: FootageDocument['isAnalyzed'];
 };
 
+type FootageUpdateInput = {
+  isCsgoFootage: FootageDocument['isCsgoFootage'];
+  isAnalyzed: FootageDocument['isAnalyzed'];
+};
+
 const footageSchema = new Schema(
   {
     uuid: {
@@ -63,4 +68,4 @@ const Footage: Model<FootageDocument> = mongoose.model<FootageDocument>(
   footageSchema,
 );
 
-export { Footage, FootageInput, FootageDocument };
+export { Footage, FootageInput, FootageDocument, FootageUpdateInput };

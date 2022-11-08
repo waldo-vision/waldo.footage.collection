@@ -6,6 +6,7 @@ import {
   getUserFootage,
   getFootage,
   getFootageClips,
+  updateFootage,
 } from '../controllers/footage.controller';
 
 const footageRoute = (): Router => {
@@ -21,7 +22,7 @@ const footageRoute = (): Router => {
 
   router.get('/clips/:uuid', getFootageClips);
 
-  // router.patch('/:id', updateFootage);
+  router.patch('/:uuid', updateFootage);
 
   router.delete('/:uuid', deleteFootage);
 

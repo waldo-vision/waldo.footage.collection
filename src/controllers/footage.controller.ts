@@ -1,8 +1,12 @@
 import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate } from 'uuid';
 import ytdl from 'ytdl-core';
 import * as fs from 'fs';
-import { Footage, FootageInput } from '../models/footage.interface';
+import {
+  Footage,
+  FootageInput,
+  FootageUpdateInput,
+} from '../models/footage.interface';
 import { Clip } from '../models/clip.interface';
 
 const createFootage = async (
@@ -105,8 +109,16 @@ const getFootage = async (
   const { uuid } = req.params;
   const footage = await Footage.findOne({ uuid: uuid });
 
+  if (!validate(uuid)) {
+    return res
+      .status(404)
+      .json({ message: `UUID Param: ${uuid} is not a valid UUID` });
+  }
+
   if (!footage) {
-    return res.status(404).send(`Footage with uuid "${uuid}" not found.`);
+    return res
+      .status(404)
+      .json({ message: `Footage with uuid "${uuid}" not found.` });
   }
 
   return res.status(200).json({ data: footage });
@@ -158,10 +170,76 @@ const getFootageClips = async (
   return res.status(200).json({ data: footageClips });
 };
 
-// TODO: Implement updateFootage endpoint to update after parsing & analysis.
-// const updateFootage = async (req: Request, res: Response) => {
-//
-// };
+/**
+ * PATCH /footage/:uuid
+ * @summary Endpoint to update a specific Footage document.
+ * @return {FootageDocument} 200 - Success response returns the Footage document updated and a message.
+ * @return {string} 200 - Success response returns the Footage document updated and a message.
+ * @return 400 - Fields isCsgoFootage & isAnalyzed were not provided.
+ * @return 406 - One of the params (UUID, isCsgoFootage or isAnalyzed) was not provided.
+ * @return 412 - No document with the provided UUID was found.
+ * @return 418 - An error occured while attempting to update the FootageDocument.
+ */
+const updateFootage = async (
+  req: Request,
+  res: Response,
+): Promise<Response<any, Record<string, any>>> => {
+  const { uuid } = req.params;
+  const { isCsgoFootage, isAnalyzed } = req.body;
+  // check if all fields were supplied
+  if (
+    uuid === undefined ||
+    isCsgoFootage === undefined ||
+    isAnalyzed === undefined
+  ) {
+    return res.status(400).json({
+      message:
+        'The fields uuid, isCsgoFootage, and isAnalyed must be supplied.',
+    });
+  }
+
+  // check if id provided is a UUIDv4.
+  if (!validate(uuid)) {
+    return res
+      .status(406)
+      .json({ message: `UUID Param: ${uuid} is not a valid UUID.` });
+  }
+  // username is type of string?
+  // isCsgoFootage is type of boolean?
+  if (typeof isCsgoFootage !== 'boolean') {
+    return res
+      .status(406)
+      .json({ message: 'The isCsgoFootage field must be a boolean.' });
+  }
+  // isAnalyzed is type of boolean?
+  if (typeof isAnalyzed !== 'boolean') {
+    return res
+      .status(406)
+      .json({ message: 'The isAnalyzed field must be a boolean.' });
+  }
+
+  const updatedFootage: FootageUpdateInput = {
+    isAnalyzed: isAnalyzed,
+    isCsgoFootage: isCsgoFootage,
+  };
+
+  const filter = { uuid: uuid };
+  try {
+    const result = await Footage.findOneAndUpdate(filter, updatedFootage);
+    if (!result) {
+      return res
+        .status(412)
+        .json({ message: 'No document with that UUID was found.' });
+    }
+  } catch (err) {
+    return res.status(418).json({ message: err });
+  }
+
+  return res.status(200).json({
+    message: 'Updated the footage document successfully!',
+    updatedFootage: updateFootage,
+  });
+};
 
 /**
  * DELETE /footage/:uuid
@@ -195,4 +273,5 @@ export {
   getUserFootage,
   getFootage,
   getFootageClips,
+  updateFootage,
 };
