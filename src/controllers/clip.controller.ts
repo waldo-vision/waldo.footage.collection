@@ -41,8 +41,7 @@ const getClip = async (
 
   // checks if the id is a mongodb ObjectID type, otherwise the console spits out an error and won't let you send anymore requests.
   const ObjectID = Types.ObjectId;
-  const isValidId: boolean = ObjectID.isValid(id);
-  if (isValidId === false) {
+  if (ObjectID.isValid(id) === false) {
     return res
       .status(404)
       .json({ message: `Id: ${id} is not a valid ObjectId Type.` });
@@ -64,8 +63,7 @@ const deleteClip = async (
   const { id } = req.params;
 
   const ObjectID = Types.ObjectId;
-  const isValidId: boolean = ObjectID.isValid(id);
-  if (isValidId === false) {
+  if (ObjectID.isValid(id) === false) {
     return res
       .status(404)
       .json({ message: `Id: ${id} is not a valid ObjectId Type.` });
