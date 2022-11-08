@@ -21,7 +21,7 @@ type FootageInput = {
 type FootageUpdateInput = {
   isCsgoFootage: FootageDocument['isCsgoFootage'];
   isAnalyzed: FootageDocument['isAnalyzed'];
-}
+};
 
 const footageSchema = new Schema(
   {

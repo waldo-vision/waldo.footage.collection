@@ -2,7 +2,11 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4, validate } from 'uuid';
 import ytdl from 'ytdl-core';
 import * as fs from 'fs';
-import { Footage, FootageInput, FootageUpdateInput } from '../models/footage.interface';
+import {
+  Footage,
+  FootageInput,
+  FootageUpdateInput,
+} from '../models/footage.interface';
 import { Clip } from '../models/clip.interface';
 
 const createFootage = async (
@@ -106,11 +110,15 @@ const getFootage = async (
   const footage = await Footage.findOne({ uuid: uuid });
 
   if (!validate(uuid)) {
-    return res.status(404).json({ message: `UUID Param: ${uuid} is not a valid UUID`})
+    return res
+      .status(404)
+      .json({ message: `UUID Param: ${uuid} is not a valid UUID` });
   }
 
   if (!footage) {
-    return res.status(404).json({ message : `Footage with uuid "${uuid}" not found.` });
+    return res
+      .status(404)
+      .json({ message: `Footage with uuid "${uuid}" not found.` });
   }
 
   return res.status(200).json({ data: footage });
@@ -176,8 +184,7 @@ const updateFootage = async (
   res: Response,
 ): Promise<Response<any, Record<string, any>>> => {
   const { uuid } = req.params;
-  const { isCsgoFootage, isAnalyzed } =
-    req.body;
+  const { isCsgoFootage, isAnalyzed } = req.body;
   // check if all fields were supplied
   if (
     uuid === undefined ||
@@ -185,8 +192,7 @@ const updateFootage = async (
     isAnalyzed === undefined
   ) {
     return res.status(400).json({
-      message:
-        'The fields isCsgoFootage and isAnalyed must be supplied.',
+      message: 'The fields isCsgoFootage and isAnalyed must be supplied.',
     });
   }
 
@@ -219,7 +225,9 @@ const updateFootage = async (
   try {
     const result = await Footage.findOneAndUpdate(filter, updatedFootage);
     if (!result) {
-      return res.status(412).json({ message: "No document with that UUID was found."})
+      return res
+        .status(412)
+        .json({ message: 'No document with that UUID was found.' });
     }
   } catch (err) {
     return res.status(418).json({ message: err });
