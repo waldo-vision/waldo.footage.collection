@@ -173,7 +173,8 @@ const getFootageClips = async (
 /**
  * PATCH /footage/:uuid
  * @summary Endpoint to update a specific Footage document.
- * @return {string, FootageDocument} 200 - Success response returns the Footage document updated and a message.
+ * @return {FootageDocument} 200 - Success response returns the Footage document updated and a message.
+ * @return {string} 200 - Success response returns the Footage document updated and a message.
  * @return 400 - Fields isCsgoFootage & isAnalyzed were not provided.
  * @return 406 - One of the params (UUID, isCsgoFootage or isAnalyzed) was not provided.
  * @return 412 - No document with the provided UUID was found.
@@ -192,7 +193,7 @@ const updateFootage = async (
     isAnalyzed === undefined
   ) {
     return res.status(400).json({
-      message: 'The fields isCsgoFootage and isAnalyed must be supplied.',
+      message: 'The fields uuid, isCsgoFootage, and isAnalyed must be supplied.',
     });
   }
 

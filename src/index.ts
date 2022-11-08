@@ -56,6 +56,7 @@ app.use(express.json());
 
 app.use('/footage', footageRoute());
 app.use('/clip', clipRoute());
+// setup rate limits
 
 app.get('/', (req, res) => {
   return res.json({ message: 'Hello World!' });
