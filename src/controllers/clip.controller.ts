@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate } from 'uuid';
 import { Clip } from '../models/clip.interface';
 
 /**
@@ -23,11 +23,54 @@ const createClip = async (
   // TODO: Implement logic to store clips to storage directory named after the Footage ID.
 
   const clipCreated = await Clip.create({
-    id: uniqueId,
+    uuid: uniqueId,
     footage,
   });
 
   return res.status(201).json({ data: clipCreated });
+};
+
+/**
+ * GET /download/:uuid
+ * @summary endpoint to retrieve a clip document using the uuid.
+ * @return {<ClipDocument>} 200- Successfully found and retrieved the clip document.
+ * @return 424 - The uuid param wasn't provided for the request.
+ * @return 418 - The uuid param was provided but the param wasn't in uuid form.
+ * @return 412 - An error occured while attempting to retrieve the clip document.
+ * @return 408 - A clip document with the related uuid could not be found.
+ * @return 406 - An error occured while attempting to download the clip.
+ */
+const downloadClipByID = async (req: Request, res: Response): Promise<any> => {
+  const { uuid } = req.params;
+
+  if (uuid === undefined) {
+    return res
+      .status(424)
+      .json({ message: 'The uuid param wasnt found to be provided.' });
+  }
+
+  if (!validate(uuid)) {
+    return res
+      .status(418)
+      .json({ message: `The param: ${uuid} was found not to be a uuid type.` });
+  }
+
+  const filter = { uuid: uuid };
+  const result = await Clip.findOne(filter);
+  if (result !== null) {
+    // should change result.footage to the clip file uuid later on but rn this is just for testing of the stream... rn reads from local dir.
+    return res.download(`${result.footage}.mp4`, function (err) {
+      if (err) {
+        // thoughts on handling this as you cant return another result response after the headers have been sent....
+        // not a big deal as there is a very low probable chance that an error downloading will occur as long as the frontend is built solid.
+        console.log('An error occured');
+      }
+    });
+  } else {
+    return res.status(408).json({
+      message: 'A clip document with the uuid provided could not be found.',
+    });
+  }
 };
 
 /**
@@ -86,4 +129,4 @@ const deleteClip = async (
   return res.status(200).json({ message: 'Clip deleted successfully.' });
 };
 
-export { createClip, deleteClip, getAllClips, getClip };
+export { createClip, deleteClip, getAllClips, getClip, downloadClipByID };

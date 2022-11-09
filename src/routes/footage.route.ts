@@ -12,7 +12,7 @@ import {
 const footageRoute = (): Router => {
   const router = Router();
 
-  router.post('/:footage', createFootage);
+  router.post('/', createFootage);
 
   router.get('/', getAllFootage);
 
