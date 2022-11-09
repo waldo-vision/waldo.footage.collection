@@ -17,6 +17,7 @@ const createFootage = async (
    * @param {string} username.form.required - The User's Discord name - application/x-www-form-urlencoded
    * @param {string} url.form.required - The YouTube URL with capture footage - application/x-www-form-urlencoded
    * @return {FootageDocument} 200 - Success response returns created Footage document.
+   * @return 428 - TYPE ERROR: The username field must be a string or the id field must be numbers, or the url field must be a string.
    * @return 422 - A required form item is missing (i.e.: id, username, url).
    * @return 406 - The YouTube URL is not to an acceptable.
    * @return 400 - The YouTube URL has already been submitted.
@@ -26,11 +27,29 @@ const createFootage = async (
 ): Promise<Response<any, Record<string, any>>> => {
   const { id, username, url } = req.body;
 
+  // eventually convert to a util file ex errorhandling.ts in a helpers folder.
   if (!id || !username || !url) {
     return res
       .status(422)
       .json({ message: 'The fields id, username, and URL are required' });
   }
+  
+  if(typeof username !== 'string') {
+    return res
+      .status(428)
+      .json({ message: `TYPE ERROR: username ${username} is not a string` })
+  }
+  if(typeof id !== 'number') {
+    return res
+      .status(428)
+      .json({ message: `TYPE ERROR: id ${id} is not a number or multiple numbers. (dont put quotes around the id?)` })
+  }
+  if(typeof url !== 'string') {
+    return res
+      .status(428)
+      .json({ message: `TYPE ERROR: url ${url} is not a string` })
+  }
+
 
   const existingFootage = await Footage.findOne({ youtubeUrl: url });
 
