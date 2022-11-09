@@ -40,41 +40,38 @@ const createClip = async (
  * @return 408 - A clip document with the related uuid could not be found.
  * @return 406 - An error occured while attempting to download the clip.
  */
-const downloadClipByID = async (
-  req: Request,
-  res: Response,
-): Promise<any> => {
+const downloadClipByID = async (req: Request, res: Response): Promise<any> => {
   const { uuid } = req.params;
 
   if (uuid === undefined) {
     return res
       .status(424)
-      .json({ message: "The uuid param wasnt found to be provided." })
+      .json({ message: 'The uuid param wasnt found to be provided.' });
   }
 
   if (!validate(uuid)) {
     return res
       .status(418)
-      .json({ message: `The param: ${uuid} was found not to be a uuid type.` })
+      .json({ message: `The param: ${uuid} was found not to be a uuid type.` });
   }
-  
-    const filter = { uuid: uuid }
-    const result = await Clip.findOne(filter)
-    if (result !== null) {
-      // should change result.footage to the clip file uuid later on but rn this is just for testing of the stream... rn reads from local dir.
-      return res.download(`${result.footage}.mp4`,  function (err) {
-        if (err) {
-          // thoughts on handling this as you cant return another result response after the headers have been sent....
-          // not a big deal as there is a very low probable chance that an error downloading will occur as long as the frontend is built solid.
-          console.log("An error occured")
-        }
+
+  const filter = { uuid: uuid };
+  const result = await Clip.findOne(filter);
+  if (result !== null) {
+    // should change result.footage to the clip file uuid later on but rn this is just for testing of the stream... rn reads from local dir.
+    return res.download(`${result.footage}.mp4`, function (err) {
+      if (err) {
+        // thoughts on handling this as you cant return another result response after the headers have been sent....
+        // not a big deal as there is a very low probable chance that an error downloading will occur as long as the frontend is built solid.
+        console.log('An error occured');
+      }
     });
-    } else {
-      return res
-        .status(408)
-        .json({ message: "A clip document with the uuid provided could not be found." })
-    }
-}
+  } else {
+    return res.status(408).json({
+      message: 'A clip document with the uuid provided could not be found.',
+    });
+  }
+};
 
 /**
  * GET /clip

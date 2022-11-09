@@ -16,8 +16,8 @@ const clipRoute = (): Router => {
 
   router.get('/:uuid', getClip);
 
-  router.get('/download/:uuid', downloadClipByID)
-  
+  router.get('/download/:uuid', downloadClipByID);
+
   // router.patch('/clip/:id', updateClip);
 
   router.delete('/:uuid', deleteClip);

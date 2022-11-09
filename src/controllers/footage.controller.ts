@@ -33,23 +33,22 @@ const createFootage = async (
       .status(422)
       .json({ message: 'The fields id, username, and URL are required' });
   }
-  
-  if(typeof username !== 'string') {
-    return res
-      .status(428)
-      .json({ message: `TYPE ERROR: username ${username} is not a string` })
-  }
-  if(typeof id !== 'number') {
-    return res
-      .status(428)
-      .json({ message: `TYPE ERROR: id ${id} is not a number or multiple numbers. (dont put quotes around the id?)` })
-  }
-  if(typeof url !== 'string') {
-    return res
-      .status(428)
-      .json({ message: `TYPE ERROR: url ${url} is not a string` })
-  }
 
+  if (typeof username !== 'string') {
+    return res
+      .status(428)
+      .json({ message: `TYPE ERROR: username ${username} is not a string` });
+  }
+  if (typeof id !== 'number') {
+    return res.status(428).json({
+      message: `TYPE ERROR: id ${id} is not a number or multiple numbers.`,
+    });
+  }
+  if (typeof url !== 'string') {
+    return res
+      .status(428)
+      .json({ message: `TYPE ERROR: url ${url} is not a string` });
+  }
 
   const existingFootage = await Footage.findOne({ youtubeUrl: url });
 
