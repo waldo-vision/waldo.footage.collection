@@ -17,7 +17,9 @@ export const ClipZodSchema = z.object({
   footage: z.string().uuid(),
 });
 
-const ClipRetrieveSchema = z.array(ClipZodSchema);
+const ClipRetrieveSchema = z.object({
+  clips: z.array(ClipZodSchema),
+});
 
 type ClipZod = z.infer<typeof ClipZodSchema>;
 type ClipRetrieveZod = z.infer<typeof ClipRetrieveSchema>;

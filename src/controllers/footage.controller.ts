@@ -120,7 +120,7 @@ export const getFootage = defaultEndpointsFactory.build({
         footageResult.push(doc);
       });
     }
-    return footageResult;
+    return { footage: footageResult };
   },
 });
 

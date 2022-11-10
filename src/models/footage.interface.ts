@@ -19,7 +19,9 @@ const FootageZodSchema = z.object({
   isAnalyzed: z.boolean(),
 });
 
-const FootageRetrieveSchema = z.array(FootageZodSchema);
+const FootageRetrieveSchema = z.object({
+  footage: z.array(FootageZodSchema),
+});
 
 type FootageZod = z.infer<typeof FootageZodSchema>;
 type FootageRetrieveZod = z.infer<typeof FootageRetrieveSchema>;

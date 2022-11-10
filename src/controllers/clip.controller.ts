@@ -99,7 +99,7 @@ export const getClip = defaultEndpointsFactory.build({
         clipResult.push(doc);
       });
     }
-    return clipResult;
+    return { clips: clipResult };
   },
 });
 
