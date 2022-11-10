@@ -11,7 +11,7 @@ const PORT = parseInt(process.env.PORT || '4500');
 
 export const zodConfig = createConfig({
   server: {
-    listen: 8000, // port or socket
+    listen: PORT, // port or socket
   },
   cors: true,
   logger: {
