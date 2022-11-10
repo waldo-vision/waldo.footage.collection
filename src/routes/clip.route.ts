@@ -1,28 +1,21 @@
 import { Router } from 'express';
+import { Routing, DependsOnMethod } from 'express-zod-api';
 import {
-  createClip,
   deleteClip,
-  getAllClips,
   getClip,
-  downloadClipByID,
+  createClip,
+  downloadClipById,
 } from '../controllers/clip.controller';
 
-const clipRoute = (): Router => {
-  const router = Router();
+const clipRouter: Routing =  {
+    clip: {
+      "": new DependsOnMethod({
+        post: createClip,
+        get: getClip,
+        delete: deleteClip,
+      }),
+      download: downloadClipById,
+    }
+}
 
-  router.post('/:footage', createClip);
-
-  router.get('/', getAllClips);
-
-  router.get('/:uuid', getClip);
-
-  router.get('/download/:uuid', downloadClipByID);
-
-  // router.patch('/clip/:id', updateClip);
-
-  router.delete('/:uuid', deleteClip);
-
-  return router;
-};
-
-export { clipRoute };
+export { clipRouter };

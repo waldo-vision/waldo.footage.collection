@@ -19,16 +19,19 @@ const FootageZodSchema = z.object({
   isAnalyzed: z.boolean(),
 });
 
-type FootageZod = z.infer<typeof FootageZodSchema>;
+const FootageRetrieveSchema = z.array(FootageZodSchema);
 
+type FootageZod = z.infer<typeof FootageZodSchema>;
+type FootageRetrieveZod = z.infer<typeof FootageRetrieveSchema>;
 const FootageUpdateInputSchema = z.object({
   uuid: z.string().uuid(),
   isCsgoFootage: z.boolean(),
   isAnalyzed: z.boolean(),
 });
 
-type FootageUpdateInput = z.infer<typeof FootageUpdateInputSchema>;
 
+
+type FootageUpdateInput = z.infer<typeof FootageUpdateInputSchema>;
 const footageSchema = new Schema(
   {
     uuid: {
@@ -81,4 +84,6 @@ export {
   FootageUpdateInput,
   FootageZodSchema,
   FootageUpdateInputSchema,
+  FootageRetrieveSchema,
+  FootageRetrieveZod,
 };
