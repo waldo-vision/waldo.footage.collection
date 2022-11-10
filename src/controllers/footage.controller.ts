@@ -6,9 +6,12 @@ import {
   FootageZod,
   FootageZodSchema,
   FootageUpdateInputSchema,
+  FootageRetrieveSchema,
+  FootageRetrieveZod,
 } from '../models/footage.interface';
 import { Clip, ClipZodSchema } from '../models/clip.interface';
 import { createHttpError, defaultEndpointsFactory, z } from 'express-zod-api';
+import { any } from 'express-zod-api/dist/extend-zod';
 
 /**
  * POST /footage
@@ -82,47 +85,6 @@ export const createFootage = defaultEndpointsFactory.build({
 });
 
 /**
- * GET /footage
- * @summary Endpoint to get all available Footage documents.
- * @return {array<FootageDocument>} 200 - Success response returns an array of Footage documents.
- */
-export const getAllFootage = defaultEndpointsFactory.build({
-  method: 'get',
-  input: z.object({}),
-  output: z.object({
-    footage: z.array(FootageZodSchema),
-  }),
-  handler: async ({ input, options, logger }) => {
-    const footage = await Footage.find().sort('-createdAt').exec();
-
-    // keeping because in prod we shouldn't send whole object
-    // const footage: FootageInput[] = [];
-
-    // mongoFootage.forEach(
-    //   ({
-    //     uuid,
-    //     discordId,
-    //     username,
-    //     youtubeUrl,
-    //     isCsgoFootage,
-    //     isAnalyzed,
-    //   }) => {
-    //     footage.push({
-    //       uuid,
-    //       discordId,
-    //       username,
-    //       youtubeUrl,
-    //       isCsgoFootage,
-    //       isAnalyzed,
-    //     });
-    //   },
-    // );
-
-    return { footage };
-  },
-});
-
-/**
  * GET /footage/:uuid
  * @summary Endpoint to get a specific Footage document.
  * @return {FootageDocument} 200 - Success response returns the Footage document.
@@ -131,16 +93,34 @@ export const getAllFootage = defaultEndpointsFactory.build({
 export const getFootage = defaultEndpointsFactory.build({
   method: 'get',
   input: z.object({
-    uuid: z.string().uuid(),
+    uuid: z.string().uuid().optional(),
   }),
-  output: FootageZodSchema,
+  // ignores the output error below uncomment if you want to try and fix it
+  // the error doesn't cause any problems with operations.
+  output: FootageRetrieveSchema,
   handler: async ({ input: { uuid }, options, logger }) => {
-    const footage = await Footage.findOne({ uuid });
-
-    if (!footage)
-      throw createHttpError(404, `Footage with uuid "${uuid}" not found.`);
-
-    return footage;
+    // all footage returns
+    const footageResult: any[] = [];
+    if (uuid) {
+      const footage = await Footage.findOne({ uuid });
+      if (footage === null) {
+        console.log('error');
+        throw createHttpError(
+          404,
+          'No footage document with the UUID provided could be found.',
+        );
+      }
+      footageResult.push(footage);
+    } else {
+      const allFootage = await Footage.find().sort('-createdAt').exec();
+      if (allFootage == null) {
+        throw createHttpError(404, 'No footage documents could be found.');
+      }
+      allFootage.forEach((doc, index) => {
+        footageResult.push(doc);
+      });
+    }
+    return footageResult;
   },
 });
 
@@ -153,7 +133,8 @@ export const getFootage = defaultEndpointsFactory.build({
 export const getUserFootage = defaultEndpointsFactory.build({
   method: 'get',
   input: z.object({
-    discordId: z.number(),
+    // had to change to string because the param is sent as a string not as a number for some reason.
+    discordId: z.string(),
   }),
   output: z.object({
     footage: z.array(FootageZodSchema),
@@ -245,7 +226,7 @@ export const updateFootage = defaultEndpointsFactory.build({
  * @return 404 - Footage UUID not found.
  */
 export const deleteFootage = defaultEndpointsFactory.build({
-  method: 'get',
+  method: 'delete',
   input: z.object({
     uuid: z.string().uuid(),
   }),
