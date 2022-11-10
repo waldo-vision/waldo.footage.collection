@@ -84,7 +84,6 @@ export const createFootage = defaultEndpointsFactory.build({
   },
 });
 
-
 /**
  * GET /footage/:uuid
  * @summary Endpoint to get a specific Footage document.
@@ -96,27 +95,30 @@ export const getFootage = defaultEndpointsFactory.build({
   input: z.object({
     uuid: z.string().uuid().optional(),
   }),
-  // @ts-ignore ignores the output error below uncomment if you want to try and fix it
+  // ignores the output error below uncomment if you want to try and fix it
   // the error doesn't cause any problems with operations.
   output: FootageRetrieveSchema,
   handler: async ({ input: { uuid }, options, logger }) => {
     // all footage returns
-    let footageResult: any[] = []
+    const footageResult: any[] = [];
     if (uuid) {
       const footage = await Footage.findOne({ uuid });
       if (footage === null) {
-        console.log("error")
-        throw createHttpError(404, 'No footage document with the UUID provided could be found.');
+        console.log('error');
+        throw createHttpError(
+          404,
+          'No footage document with the UUID provided could be found.',
+        );
       }
-      footageResult.push(footage)
+      footageResult.push(footage);
     } else {
       const allFootage = await Footage.find().sort('-createdAt').exec();
       if (allFootage == null) {
         throw createHttpError(404, 'No footage documents could be found.');
       }
-      allFootage.forEach(doc => {
-        footageResult.push(doc)
-      })
+      allFootage.forEach((doc, index) => {
+        footageResult.push(doc);
+      });
     }
     return footageResult;
   },

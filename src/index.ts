@@ -1,9 +1,9 @@
 import dotenv from 'dotenv';
 import { createConfig, Routing } from 'express-zod-api';
-import { createServer } from "express-zod-api";
+import { createServer } from 'express-zod-api';
 import { clipRouter } from './routes/clip.route';
-import { footageRouter } from './routes/footage.route'
-import { connect } from './services/database'
+import { footageRouter } from './routes/footage.route';
+import { connect } from './services/database';
 dotenv.config();
 
 // const HOST = `http://${process.env.HOST}` || 'http://localhost';
@@ -19,8 +19,11 @@ export const zodConfig = createConfig({
     color: true,
   },
 });
-connect()
+connect();
 
-const APIRouter: Routing = { footage: footageRouter.footage, clip: clipRouter.clip }
+const APIRouter: Routing = {
+  footage: footageRouter.footage,
+  clip: clipRouter.clip,
+};
 
-createServer(zodConfig, APIRouter)
+createServer(zodConfig, APIRouter);

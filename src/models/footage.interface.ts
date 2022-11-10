@@ -29,8 +29,6 @@ const FootageUpdateInputSchema = z.object({
   isAnalyzed: z.boolean(),
 });
 
-
-
 type FootageUpdateInput = z.infer<typeof FootageUpdateInputSchema>;
 const footageSchema = new Schema(
   {

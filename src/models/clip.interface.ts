@@ -17,7 +17,7 @@ export const ClipZodSchema = z.object({
   footage: z.string().uuid(),
 });
 
-const ClipRetrieveSchema = z.array(ClipZodSchema)
+const ClipRetrieveSchema = z.array(ClipZodSchema);
 
 type ClipZod = z.infer<typeof ClipZodSchema>;
 type ClipRetrieveZod = z.infer<typeof ClipRetrieveSchema>;
@@ -54,4 +54,11 @@ const Clip: Model<ClipDocument> = mongoose.model<ClipDocument>(
   clipSchema,
 );
 
-export { Clip, ClipInput, ClipDocument, ClipZod, ClipRetrieveZod, ClipRetrieveSchema };
+export {
+  Clip,
+  ClipInput,
+  ClipDocument,
+  ClipZod,
+  ClipRetrieveZod,
+  ClipRetrieveSchema,
+};

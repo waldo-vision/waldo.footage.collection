@@ -7,15 +7,15 @@ import {
   downloadClipById,
 } from '../controllers/clip.controller';
 
-const clipRouter: Routing =  {
-    clip: {
-      "": new DependsOnMethod({
-        post: createClip,
-        get: getClip,
-        delete: deleteClip,
-      }),
-      download: downloadClipById,
-    }
-}
+const clipRouter: Routing = {
+  clip: {
+    '': new DependsOnMethod({
+      post: createClip,
+      get: getClip,
+      delete: deleteClip,
+    }),
+    download: downloadClipById,
+  },
+};
 
 export { clipRouter };
